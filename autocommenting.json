@@ -1,0 +1,1405 @@
+{
+  "createdAt": "2025-07-09T14:57:09.993Z",
+  "updatedAt": "2025-07-09T21:39:41.000Z",
+  "id": "ToyisOtILkbjdFIm",
+  "name": "Autocommenting",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({\n\tid: item.json.id,\n  \tpostdate: new Date(item.json.created_utc * 1000).toLocaleDateString('en-GB'),\n\ttitle: item.json.title,\n\tdescription: item.json.selftext,\n\tsubreddit: item.json.subreddit,\n\tupvotes: item.json.ups,\n\turl: `https://www.reddit.com${item.json.permalink}`\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -520,
+        280
+      ],
+      "id": "cf779dbb-89ec-4833-96a2-2e3cdcd777be",
+      "name": "Set the local Date Format"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "postdate"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        280
+      ],
+      "id": "44966989-949f-404c-89f9-2638355c2f87",
+      "name": "Sort by Date"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        100,
+        160
+      ],
+      "id": "52bdf54a-cf1b-4219-be5c-ad0d18531897",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"You are a helpful, conversational AI assistant that generates structured responses in JSON format.\\n\\nYour goal is to analyze a Reddit post (provided with a title and description), summarize its core intent, and respond with a natural, insightful comment. If the post lacks clarity or context, reflect that in your summary and response.\\n\\n### Input:\\nTitle: {{ $json.title }}\\nDescription: {{ $json.description }}\\n\\n### Expected JSON Output:\\n{\\n  \\\"summary\\\": \\\"A brief and clear summary of the post's content or user’s intent.\\\",\\n  \\\"response\\\": \\\"A thoughtful, relevant, and human-like comment suitable for Reddit. Keep it friendly, curious, or helpful—avoid robotic tone.\\\",\\n  \\\"confidence_score\\\": \\\"A confidence score (e.g., 88%) representing how well you understood the post.\\\"\\n}\\n\\n### Guidelines:\\n- Prioritize clarity, natural tone, and brevity.\\n- Avoid generic responses. Tailor the comment to the post’s actual content.\\n- If more info is clearly needed, acknowledge that in the response.\\n- Do not return anything except the final JSON structure.\\n- Avoid over-explaining or stating obvious facts.\\n- If the best response is short, keep it short. Quality > Length.\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        160
+      ],
+      "id": "9ec1b1b9-cd45-417f-87b9-e69c6b739e55",
+      "name": "Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VO1ibc2yhWJISQ37",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\n\nfunction extractJson(text) {\n  const start = text.indexOf(\"{\");\n  const end = text.lastIndexOf(\"}\");\n  if (start !== -1 && end !== -1 && end > start) {\n    return text.slice(start, end + 1);\n  }\n  return null;\n}\n\nfunction cleanText(text) {\n  if (typeof text !== \"string\") return \"\";\n  return text\n    .replace(/^```json\\s*/i, \"\")\n    .replace(/```$/, \"\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfor (const item of items) {\n  const raw = item.json.candidates?.[0]?.content?.parts?.[0]?.text || \"\";\n  const cleanedRaw = cleanText(raw);\n  const jsonString = extractJson(cleanedRaw);\n\n  try {\n    const parsed = JSON.parse(jsonString);\n    output.push({ json: parsed });\n  } catch (e) {\n    output.push({\n      json: {\n        error: \"Invalid JSON format\",\n        originalText: cleanedRaw\n      }\n    });\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        160
+      ],
+      "id": "e5c50dd9-401d-45a2-a21c-9d81ec1cd375",
+      "name": "Clean the JSON"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "24dce98f-5382-46e3-90a3-7cb2f5370d31",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        940,
+        160
+      ],
+      "id": "58465f60-7488-49ad-92b1-a264659a4e6f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Make this response like more human written.\\now it looks like ai written. Only output response, no extra words, here is the response:  {{ $('Clean the JSON').item.json.response }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        180
+      ],
+      "id": "daaa5284-090a-4757-83dc-353fecefe7ef",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        380
+      ],
+      "id": "8cac12c3-a9c4-4d5f-b151-90d57c48cbb2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VO1ibc2yhWJISQ37",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "24dce98f-5382-46e3-90a3-7cb2f5370d31",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2940,
+        160
+      ],
+      "id": "5349ba25-488a-4b68-9a33-578ba28725fe",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    id: item.json.id,\n    postdate: item.json.postdate,\n    url: item.json.url,\n    subreddit: item.json.subreddit,\n    upvotes: item.json.upvotes,\n    title: item.json.title\n      .replace(/[^\\w\\s.,!?]/g, \"\")        // Removes unwanted characters\n      .replace(/\\s+/g, \" \")              // Collapses multiple spaces\n      .trim(),                           // Trims leading/trailing spaces\n\n    description: item.json.description\n      .replace(/[^\\w\\s.,!?]/g, \"\")       // Removes unwanted characters\n      .replace(/\\s+/g, \" \")              // Collapses multiple spaces\n      .trim()                            // Trims leading/trailing spaces\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        280
+      ],
+      "id": "b514c0e4-a195-4caa-b2a2-3f515981b9c3",
+      "name": "Data Clean"
+    },
+    {
+      "parameters": {
+        "content": "Triggers Alert to Scrape Reddit Post And Clean the Data",
+        "height": 280,
+        "width": 1280,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1320,
+        200
+      ],
+      "typeVersion": 1,
+      "id": "7b826d83-117e-434d-8b62-8c83c0babe57",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Logic For Statement if condition is true\n",
+        "height": 720,
+        "width": 1900,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "15bc6df3-ad9b-4a52-b158-b1a7cc398d4e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Logic For Statement if condition is true\n",
+        "height": 640,
+        "width": 1600,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1980,
+        40
+      ],
+      "typeVersion": 1,
+      "id": "a2e1fd2e-998f-47d9-9067-85ea1a8885e3",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "subreddit": "={{ $('Get row(s) in sheet').item.json.Subreddit }}",
+        "limit": 1,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        280
+      ],
+      "id": "3fc30fcc-6482-44ad-903c-b719b6335685",
+      "name": "Reddit",
+      "credentials": {
+        "redditOAuth2Api": {
+          "id": "AO0BNZTmX2brLVKm",
+          "name": "Reddit account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 11,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3420,
+        420
+      ],
+      "id": "5bb83846-ad19-4445-a2fd-1dd72b4d7cb8",
+      "name": "Wait",
+      "webhookId": "2648a471-a9f1-4fb8-8856-118fc503b58d",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 11,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1700,
+        380
+      ],
+      "id": "9ec34865-a171-47d8-b648-64a413b0ee55",
+      "name": "Wait1",
+      "webhookId": "2648a471-a9f1-4fb8-8856-118fc503b58d",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1240,
+        280
+      ],
+      "id": "cf4c8f8c-fbab-4a40-9364-accf6299912b",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      Subreddit: item.json.Subreddit\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -860,
+        280
+      ],
+      "id": "e1a39330-7587-417e-98e7-6bf2dbe2de23",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I",
+          "mode": "list",
+          "cachedResultName": "Reddit Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 565940974,
+          "mode": "list",
+          "cachedResultName": "Master_Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit#gid=565940974"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Not Done"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -1040,
+        280
+      ],
+      "id": "f7e90422-34fe-4131-84aa-9d95a18f904e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DRrR9sDkWMhYEpwo",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I",
+          "mode": "list",
+          "cachedResultName": "Reddit Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1313016804,
+          "mode": "list",
+          "cachedResultName": "Reddit_Comment_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit#gid=1313016804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post ID": "={{ $('Data Clean').item.json.id }}",
+            "Title": "={{ $('Data Clean').item.json.title }}",
+            "Subreddit": "={{ $('Data Clean').item.json.subreddit }}",
+            "URL": "={{ $('Set the local Date Format').item.json.url }}",
+            "Post Text": "={{ $('Data Clean').item.json.description }}",
+            "AI Comment": "={{ $json.response }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Post ID",
+              "displayName": "Post ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subreddit",
+              "displayName": "Subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Comment",
+              "displayName": "AI Comment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        620,
+        160
+      ],
+      "id": "2ba81c7f-bdce-4419-ab08-1c42d13fc907",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DRrR9sDkWMhYEpwo",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0950ND2VQD",
+          "mode": "list",
+          "cachedResultName": "reddit-post-alert"
+        },
+        "message": "=Reddit Approval:\n\nTitle: {{ $json.Title }}\n\nSummary: {{ $('Clean the JSON').item.json.summary }}\n\nAi Response: {{ $json['AI Comment'] }}\n\nPost URL: {{ $json.URL }}\n\nUpvotes: {{ $('Data Clean').item.json.upvotes }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✅Approve",
+            "disapproveLabel": "❌Decline"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        780,
+        160
+      ],
+      "id": "bfb1c826-bc70-4a3c-96e0-02fe89ce2b66",
+      "name": "Send message and wait for response",
+      "webhookId": "ce0e73e3-cb3f-4bdc-b194-4195c1a7c0c4",
+      "credentials": {
+        "slackApi": {
+          "id": "4cxy2wn1cdrHCKwc",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0950ND2VQD",
+          "mode": "list",
+          "cachedResultName": "reddit-post-alert"
+        },
+        "message": "=Reddit Approval:\n\nSummary: {{ $('Clean the JSON').item.json.summary }}\n\nAi Response: {{ $('AI Agent').item.json.output }}\n\nPost URL: {{ $('Loop Over Items').item.json.url }}\n\nConfidenceScore: {{ $('Clean the JSON').item.json.confidenceScore }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "✅Approve",
+            "disapproveLabel": "❌Decline"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2740,
+        160
+      ],
+      "id": "81940f5f-8b96-445b-bf21-c5c652e4418a",
+      "name": "Send message and wait for response1",
+      "webhookId": "ce0e73e3-cb3f-4bdc-b194-4195c1a7c0c4",
+      "credentials": {
+        "slackApi": {
+          "id": "4cxy2wn1cdrHCKwc",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I",
+          "mode": "list",
+          "cachedResultName": "Reddit Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1313016804,
+          "mode": "list",
+          "cachedResultName": "Reddit_Comment_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit#gid=1313016804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post ID": "={{ $('Append row in sheet').item.json['Post ID'] }}",
+            "Final Status": "Complete",
+            "Timestamp": "={{ new Date().toISOString() }}"
+          },
+          "matchingColumns": [
+            "Post ID"
+          ],
+          "schema": [
+            {
+              "id": "Post ID",
+              "displayName": "Post ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subreddit",
+              "displayName": "Subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Comment",
+              "displayName": "AI Comment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1400,
+        40
+      ],
+      "id": "9c8ffd37-61af-4183-b1d7-ccf0658746db",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DRrR9sDkWMhYEpwo",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I",
+          "mode": "list",
+          "cachedResultName": "Reddit Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1313016804,
+          "mode": "list",
+          "cachedResultName": "Reddit_Comment_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit#gid=1313016804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post ID": "={{ $('Data Clean').item.json.id }}",
+            "Title": "={{ $('Data Clean').item.json.title }}",
+            "Subreddit": "={{ $('Data Clean').item.json.subreddit }}",
+            "URL": "={{ $('Set the local Date Format').item.json.url }}",
+            "Post Text": "={{ $('Data Clean').item.json.description }}",
+            "AI Comment": "={{ $json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Post ID",
+              "displayName": "Post ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subreddit",
+              "displayName": "Subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Comment",
+              "displayName": "AI Comment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2520,
+        140
+      ],
+      "id": "ff5a955b-22d7-40fd-978a-e16e150c68df",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DRrR9sDkWMhYEpwo",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I",
+          "mode": "list",
+          "cachedResultName": "Reddit Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1313016804,
+          "mode": "list",
+          "cachedResultName": "Reddit_Comment_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vnxen7MocGoYTFKeHxkud-EgN6OEsrrFgVGHDajrA8I/edit#gid=1313016804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Post ID": "={{ $('Append row in sheet').item.json['Post ID'] }}",
+            "Final Status": "Complete",
+            "Timestamp": "={{ new Date().toISOString() }}"
+          },
+          "matchingColumns": [
+            "Post ID"
+          ],
+          "schema": [
+            {
+              "id": "Post ID",
+              "displayName": "Post ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subreddit",
+              "displayName": "Subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Text",
+              "displayName": "Post Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Comment",
+              "displayName": "AI Comment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Status",
+              "displayName": "Final Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        3400,
+        140
+      ],
+      "id": "bd49dc0e-8572-4d1c-82b3-7b2bf3f3de15",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DRrR9sDkWMhYEpwo",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth.reddit.com/api/comment",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "thing_id",
+              "value": "=t3_{{ $('Append row in sheet').item.json['Post ID'] }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Append row in sheet').item.json['AI Comment'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        40
+      ],
+      "id": "04187579-083c-4a45-9957-0902e7c7e44e",
+      "name": "Comment Post",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "J6uidY7kggNlgwnH",
+          "name": "Comment reddit"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth.reddit.com/api/comment",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "thing_id",
+              "value": "=t3_{{ $('Data Clean').item.json.id }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3180,
+        120
+      ],
+      "id": "6f7805f6-7fbc-486b-a1c1-86c9b63d2f16",
+      "name": "Comment Post1",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "J6uidY7kggNlgwnH",
+          "name": "Comment reddit"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Set the local Date Format": {
+      "main": [
+        [
+          {
+            "node": "Sort by Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort by Date": {
+      "main": [
+        [
+          {
+            "node": "Data Clean",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Google Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini": {
+      "main": [
+        [
+          {
+            "node": "Clean the JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean the JSON": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Comment Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Comment Post1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Clean": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reddit": {
+      "main": [
+        [
+          {
+            "node": "Set the local Date Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Reddit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comment Post": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comment Post1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "bfb79781-4123-46cd-9716-d44604b65a0b",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-07-09T14:57:09.999Z",
+      "updatedAt": "2025-07-09T14:57:09.999Z",
+      "role": "workflow:owner",
+      "workflowId": "ToyisOtILkbjdFIm",
+      "projectId": "v9mgI7YwUNM7HVe7",
+      "project": {
+        "createdAt": "2025-07-09T14:54:57.277Z",
+        "updatedAt": "2025-07-09T14:55:22.360Z",
+        "id": "v9mgI7YwUNM7HVe7",
+        "name": "Vyrade ai <vyradeai@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-07-09T14:54:57.277Z",
+            "updatedAt": "2025-07-09T14:54:57.277Z",
+            "role": "project:personalOwner",
+            "userId": "3322d806-9348-4749-ac47-f34a6cb9326d",
+            "projectId": "v9mgI7YwUNM7HVe7",
+            "user": {
+              "createdAt": "2025-07-09T14:54:56.116Z",
+              "updatedAt": "2025-07-14T08:26:14.000Z",
+              "id": "3322d806-9348-4749-ac47-f34a6cb9326d",
+              "email": "vyradeai@gmail.com",
+              "firstName": "Vyrade",
+              "lastName": "ai",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-07-09T14:55:41.219Z",
+                "personalization_survey_n8n_version": "1.101.1",
+                "automationGoalDevops": [
+                  "incident-response",
+                  "cloud-infrastructure-orchestration",
+                  "reporting",
+                  "monitoring-alerting"
+                ],
+                "companySize": "<20",
+                "companyType": "digital-agency",
+                "role": "engineering",
+                "reportedSource": "google"
+              },
+              "settings": {
+                "userActivated": false,
+                "easyAIWorkflowOnboarded": true
+              },
+              "role": "global:owner",
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-07-14",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}
