@@ -1,0 +1,555 @@
+{
+  "createdAt": "2025-09-15T17:11:38.807Z",
+  "updatedAt": "2025-09-16T13:51:02.000Z",
+  "id": "21f6QbSmXxwmFDZW",
+  "name": "HR System",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Generate Appointment Letter",
+        "formDescription": "Fill in the details below to generate a dynamic appointment letter.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Candidate Name",
+              "placeholder": "e.g. John Doe",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Candidate Address",
+              "placeholder": "e.g. 123 Street, City"
+            },
+            {
+              "fieldLabel": "Candidate Email",
+              "placeholder": "e.g. john@example.com"
+            },
+            {
+              "fieldLabel": "Position Name",
+              "placeholder": "e.g. Software Engineer"
+            },
+            {
+              "fieldLabel": "Fixed CTC",
+              "placeholder": "e.g. 120000 PKR"
+            },
+            {
+              "fieldLabel": "Joining Date",
+              "placeholder": "e.g. 2025-09-20"
+            },
+            {
+              "fieldLabel": "Working Hours",
+              "placeholder": "e.g. 9 AM - 5 PM"
+            },
+            {
+              "fieldLabel": "Probation Period",
+              "placeholder": "e.g. 3 Months"
+            },
+            {
+              "fieldLabel": "Reporting Manager",
+              "placeholder": "e.g. Jimmy Anderson"
+            },
+            {
+              "fieldLabel": "Benefits List",
+              "placeholder": "e.g Health Insurance, Annual Bonus"
+            },
+            {
+              "fieldLabel": "To Be Signed By Date",
+              "placeholder": "e.g 2025-09-22"
+            },
+            {
+              "fieldLabel": "HR Name",
+              "placeholder": "e.g Jane Smith"
+            },
+            {
+              "fieldLabel": "HR Designation",
+              "placeholder": "e.g HR Manager"
+            },
+            {
+              "fieldLabel": "Company Name",
+              "placeholder": "e.g Acme Corp"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "810b761e-9e70-4688-9cae-70fe6cb73537",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -2016,
+        256
+      ],
+      "webhookId": "fa2c91c8-2045-4ca9-8499-65b09a4c42d1",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1i2h6RMw7Pht17MGZLWMl8USRmSf6nYT71vK2x5hyQG4",
+          "mode": "list",
+          "cachedResultName": "Test HR",
+          "cachedResultUrl": "https://docs.google.com/document/d/1i2h6RMw7Pht17MGZLWMl8USRmSf6nYT71vK2x5hyQG4/edit?usp=drivesdk"
+        },
+        "name": "=Appointment Letter - {{ $json['Candidate Name'] }}",
+        "options": {
+          "copyRequiresWriterPermission": false,
+          "description": ""
+        }
+      },
+      "id": "45826eda-ad2f-4ed1-91f9-d82e634df120",
+      "name": "Create a candidate copy of the appointment letter template",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -1792,
+        256
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "o51LZhQ9n133pgZW",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.documentId }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{candidate_name}}",
+              "replaceText": "={{ $('On form submission').item.json['Candidate Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{candidate_address}}",
+              "replaceText": "={{ $('On form submission').item.json['Candidate Address'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{designation}}",
+              "replaceText": "={{ $('On form submission').item.json['Position Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{salary}}",
+              "replaceText": "={{ $('On form submission').item.json['Fixed CTC'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{start_date}}",
+              "replaceText": "={{ $('On form submission').item.json['Joining Date'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{working_hours}}",
+              "replaceText": "={{ $('On form submission').item.json['Working Hours'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{probation_period}}",
+              "replaceText": "={{ $('On form submission').item.json['Probation Period'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{reporting_manager}}",
+              "replaceText": "={{ $('On form submission').item.json['Reporting Manager'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{benefits_list}}",
+              "replaceText": "={{ $('On form submission').item.json['Benefits List'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{company_name}}",
+              "replaceText": "={{ $('On form submission').item.json['Company Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{hr_name}}",
+              "replaceText": "={{ $('On form submission').item.json['HR Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{hr_designation}}",
+              "replaceText": "={{ $('On form submission').item.json['HR Designation'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{current_date}}",
+              "replaceText": "={{ $now.format('MM-dd-yyyy') }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{candidate_email}}\n",
+              "replaceText": "={{ $('On form submission').item.json['Candidate Email'] }}"
+            }
+          ]
+        }
+      },
+      "id": "e16d0467-52f9-4ae6-a66e-9cb97aea399b",
+      "name": "Update the candidate appointment letter with offer details",
+      "type": "n8n-nodes-base.googleDocs",
+      "position": [
+        -1152,
+        256
+      ],
+      "typeVersion": 2,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "TRDZOhhFRaVYasOC",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.documentId }}"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "id": "139a2ddd-2b90-4fb7-8469-9457f0ed413b",
+      "name": "Download the appointment letter as a PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -944,
+        256
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "o51LZhQ9n133pgZW",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Create a candidate copy of the appointment letter template').item.json.name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "16T_--KlgQn326SRkJzluCEcaB3ZIKL3z",
+          "mode": "list",
+          "cachedResultName": "SoundTrack",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/16T_--KlgQn326SRkJzluCEcaB3ZIKL3z"
+        },
+        "options": {}
+      },
+      "id": "dfdb51db-2636-4225-8951-89e1fd9f2162",
+      "name": "Upload the PDF to Google drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -736,
+        256
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "o51LZhQ9n133pgZW",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Upload the PDF to Google drive').item.json.id }}"
+        },
+        "options": {
+          "googleFileConversion": {}
+        }
+      },
+      "id": "7c11bdc0-e080-47a9-8482-cb66f70c52e8",
+      "name": "Download file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -544,
+        256
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "o51LZhQ9n133pgZW",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Candidate Email'] }}",
+        "subject": "Appointment Letter",
+        "message": "=Congratulations: {{ $('On form submission').item.json['Candidate Name'] }}\n\nPlease email before: {{ $('On form submission').item.json['Joining Date'] }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "id": "2a04ef8e-abd8-44b3-8186-311a43edd24c",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -352,
+        256
+      ],
+      "webhookId": "a57db54b-1f8f-4824-becd-ad9ad444b91d",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vbhGTZkcS3ov826u",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -1568,
+        256
+      ],
+      "id": "b41524e4-4fbd-4ce7-a630-51250bf89f36",
+      "name": "Get a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "TRDZOhhFRaVYasOC",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n    let newItem = { json: {...item.json} };\n    if (newItem.json.content) {\n        newItem.json.content = newItem.json.content.replace(/\\u000b/g, '\\n');\n        newItem.json.content = newItem.json.content.replace(/{{company_name\\n/, '{{company_name}}');\n    }\n    return newItem;\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1376,
+        256
+      ],
+      "id": "9b1aade9-08d4-4331-9bc1-06ddd6cd144c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "content": "## 📧 HR Onboarding Flow",
+        "height": 464,
+        "width": 1952,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2096,
+        80
+      ],
+      "id": "f6d228bb-8e2d-4554-8d67-78e48f4fdcb1",
+      "name": "Sticky Note"
+    }
+  ],
+  "connections": {
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Create a candidate copy of the appointment letter template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload the PDF to Google drive": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the appointment letter as a PDF": {
+      "main": [
+        [
+          {
+            "node": "Upload the PDF to Google drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a candidate copy of the appointment letter template": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update the candidate appointment letter with offer details": {
+      "main": [
+        [
+          {
+            "node": "Download the appointment letter as a PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update the candidate appointment letter with offer details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "40e2342b-ed30-4a6b-bc3d-92db5269ea63",
+  "triggerCount": 0,
+  "shared": [
+    {
+      "createdAt": "2025-09-15T17:11:38.810Z",
+      "updatedAt": "2025-09-15T17:11:38.810Z",
+      "role": "workflow:owner",
+      "workflowId": "21f6QbSmXxwmFDZW",
+      "projectId": "v9mgI7YwUNM7HVe7",
+      "project": {
+        "createdAt": "2025-07-09T14:54:57.277Z",
+        "updatedAt": "2025-07-09T14:55:22.360Z",
+        "id": "v9mgI7YwUNM7HVe7",
+        "name": "Vyrade ai <vyradeai@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "createdAt": "2025-07-09T14:54:57.277Z",
+            "updatedAt": "2025-07-09T14:54:57.277Z",
+            "userId": "3322d806-9348-4749-ac47-f34a6cb9326d",
+            "projectId": "v9mgI7YwUNM7HVe7",
+            "user": {
+              "createdAt": "2025-07-09T14:54:56.116Z",
+              "updatedAt": "2025-09-16T09:01:04.000Z",
+              "id": "3322d806-9348-4749-ac47-f34a6cb9326d",
+              "email": "vyradeai@gmail.com",
+              "firstName": "Vyrade",
+              "lastName": "ai",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-07-09T14:55:41.219Z",
+                "personalization_survey_n8n_version": "1.101.1",
+                "automationGoalDevops": [
+                  "incident-response",
+                  "cloud-infrastructure-orchestration",
+                  "reporting",
+                  "monitoring-alerting"
+                ],
+                "companySize": "<20",
+                "companyType": "digital-agency",
+                "role": "engineering",
+                "reportedSource": "google"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "a9qjpc6W2k7n9Qr6",
+                "userActivatedAt": 1752837129125,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1753715099429
+                },
+                "dismissedCallouts": {
+                  "aiAgentStarterCallout": true
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2025-09-15",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}
