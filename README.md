@@ -5,10 +5,6 @@
 
 <h3 align="center">Product Designer • AI & Workflow Automation Specialist • Entrepreneur</h3>
 
-<p align="center">
-  <img src="https://komarev.com/ghpvc/?username=rayyanzain&label=Profile%20views&color=0e75b6&style=flat" alt="rayyanzain" />
-</p>
-
 ---
 
 ## 🧑‍💻 About Me
