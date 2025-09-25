@@ -38,29 +38,32 @@
 
 ---
 
-## 🛠️ Tech & Tools
+## 🛠️ Tech & Tools  
 
 ### 🎨 Design & Creative  
 <p align="left">
   <a href="https://www.figma.com/" target="_blank"><img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" width="40" height="40"/></a>
-  <a href="https://www.adobe.com/products/photoshop.html" target="_blank"><img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/photoshop/photoshop-line.svg" width="40" height="40"/></a>
-  <a href="https://www.adobe.com/products/illustrator.html" target="_blank"><img src="https://www.vectorlogo.zone/logos/adobe_illustrator/adobe_illustrator-icon.svg" width="40" height="40"/></a>
-  <a href="https://www.adobe.com/products/aftereffects.html" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/adobe-after-effects.svg" width="40" height="40"/></a>
+  <a href="https://www.adobe.com/products/photoshop.html" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/adobe-photoshop-2.svg" width="40" height="40"/></a>
+  <a href="https://www.adobe.com/products/illustrator.html" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/adobe-illustrator-cc.svg" width="40" height="40"/></a>
+  <a href="https://www.adobe.com/products/aftereffects.html" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/adobe-after-effects-cc.svg" width="40" height="40"/></a>
   <a href="https://www.adobe.com/products/premiere.html" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/adobe-premiere-pro-cc.svg" width="40" height="40"/></a>
+  <a href="https://www.adobe.com/products/indesign.html" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/adobe-indesign-cc.svg" width="40" height="40"/></a>
   <a href="https://framer.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/36424661?s=200&v=4" width="40" height="40"/></a>
   <a href="https://www.sketch.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/sketch-2.svg" width="40" height="40"/></a>
-</p>
+  <a href="https://miro.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/miro-2.svg" width="40" height="40"/></a>
+</p>  
 
 ### 🤖 AI & Automation  
 <p align="left">
   <a href="https://n8n.io/" target="_blank"><img src="https://avatars.githubusercontent.com/u/45487711?s=200&v=4" width="40" height="40"/></a>
   <a href="https://www.make.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/104696457?s=200&v=4" width="40" height="40"/></a>
-  <a href="https://zapier.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/409347?s=200&v=4" width="40" height="40"/></a>
+  <a href="https://zapier.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/zapier-1.svg" width="40" height="40"/></a>
   <a href="https://openai.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/openai-2.svg" width="40" height="40"/></a>
-  <a href="https://anthropic.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/110163081?s=200&v=4" width="40" height="40"/></a>
+  <a href="https://www.anthropic.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/110163081?s=200&v=4" width="40" height="40"/></a>
   <a href="https://bolt.new/" target="_blank"><img src="https://avatars.githubusercontent.com/u/150689476?s=200&v=4" width="40" height="40"/></a>
-  <a href="https://replit.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/9840442?s=200&v=4" width="40" height="40"/></a>
-</p>
+  <a href="https://replit.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/replit.svg" width="40" height="40"/></a>
+  <a href="https://www.langchain.com/" target="_blank"><img src="https://avatars.githubusercontent.com/u/126733545?s=200&v=4" width="40" height="40"/></a>
+</p>  
 
 ### 📈 Collaboration & Ops  
 <p align="left">
@@ -69,7 +72,9 @@
   <a href="https://www.notion.so/" target="_blank"><img src="https://www.vectorlogo.zone/logos/notion/notion-icon.svg" width="40" height="40"/></a>
   <a href="https://www.atlassian.com/software/jira" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" width="40" height="40"/></a>
   <a href="https://miro.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/miro-2.svg" width="40" height="40"/></a>
-</p>
+  <a href="https://github.com/" target="_blank"><img src="https://cdn.worldvectorlogo.com/logos/github-icon.svg" width="40" height="40"/></a>
+</p>  
+
 
 ---
 
