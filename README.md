@@ -5,8 +5,6 @@
 
 <h3 align="center">Product Designer • AI & Workflow Automation Specialist • Entrepreneur</h3>
 
-<img align="right" alt="Design Thinking" width="380" src="https://raw.githubusercontent.com/devSouvik/devSouvik/master/gif3.gif">
-
 <p align="center">
   <img src="https://komarev.com/ghpvc/?username=rayyanzain&label=Profile%20views&color=0e75b6&style=flat" alt="rayyanzain" />
 </p>
@@ -14,17 +12,15 @@
 ---
 
 ## 🧑‍💻 About Me
-- 🎨 **Product Designer & Associate Engineer @ Disrupt.com**  
-  Designing & optimizing SaaS products, dashboards, and scalable design systems.  
-- 🤖 **AI Automation Enthusiast**  
-  Building AI Agents + no-code/low-code automations with **n8n, Make.com, Zapier, V0.dev, Bolt.new, TempoAI, LangChain, MCP Servers**.  
-- 🚀 **Entrepreneurship**  
-  Co-founded **Internee.pk**, creating opportunities for students & employers.  
-- 📊 **Growth-Oriented Mindset**  
-  Specialized in GTM strategies, campaign tracking, and process automation for smoother product launches.  
-- 🏆 **Achievements**  
-  Winner of **UI/UX & Graphic Design competitions** at SMIU.  
-- 📚 Always exploring **autonomous agents, multimodal UX, and AI-driven product design.**
+I’m **Rayyan Zain**, a Product Designer & AI Automation Specialist with 4+ years of experience building **intuitive digital products** and **agentic AI workflows**.  
+
+At **Disrupt.com**, I design and optimize SaaS platforms, enterprise dashboards, and design systems that scale. My strength lies in merging **design thinking with AI & automation** — transforming complex workflows into seamless user experiences.  
+
+Beyond design, I specialize in **no-code/low-code automation** using tools like **n8n, Make.com, Zapier, V0.dev, Bolt.new, TempoAI, LangChain, and MCP Servers**. I’ve built AI agents that automate GTM strategies, design operations, and product pipelines — helping teams move faster with less effort.  
+
+I’m also the **Co-Founder of Internee.pk**, where I created a platform to connect students and employers, scaling opportunities for fresh talent.  
+
+Passionate about **process optimization, storytelling, and growth**, I focus on delivering products that are not only functional but also impactful. Always curious, I’m exploring **autonomous agents, multimodal UX, and AI-driven product ecosystems** to push the boundaries of design and automation.  
 
 ---
 
